@@ -1,0 +1,5 @@
+.idea
+*.dSYM
+bin/*
+lib/*.o
+lib/*.a
