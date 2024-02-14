@@ -16,9 +16,11 @@ build:
 
 test:
 	mkdir -p $(BIN_DIR)
-	$(CC) $(CFLAGS) -I$(HEADER_DIR) -c lib/ndimarr.c -o lib/ndimarr.o
+	$(CC) $(CFLAGS) -I$(HEADER_DIR)/ndimarr.h -c lib/ndimarr.c -o lib/ndimarr.o
 	ar rcs lib/libndimarr.a lib/ndimarr.o
-	$(CC) $(CFLAGS) test/ndimarr.c -Llib/ -lndimarr -o $(BIN_DIR)/run_tests	
+	$(CC) $(CFLAGS) -I$(HEADER_DIR)/nnetfunc.h -c lib/nnetfunc.c -o lib/nnetfunc.o
+	ar rcs lib/libnnetfunc.a lib/nnetfunc.o
+	$(CC) $(CFLAGS) test/ndimarr.c -Llib/ -lndimarr -lnnetfunc -o $(BIN_DIR)/run_tests	
 	$(BIN_DIR)/run_tests
 
 clean:

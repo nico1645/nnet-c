@@ -1,5 +1,6 @@
 
 #include "../include/ndimarr.h"
+#include "../include/nnetfunc.h"
 
 int main(void) {
   srand(83742);
@@ -29,6 +30,7 @@ int main(void) {
   printf("4. mat_mul:\n");
   mat_print(res2);
   mat_fill_rand(res2, 0, 10);
+  mat_func(res2, sigmoid);
   printf("5. mat_fill_rand:\n");
   mat_print(res2);
   mat_fill_zeros(res2);
