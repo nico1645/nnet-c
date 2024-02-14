@@ -1,4 +1,5 @@
 #include "../include/ndimarr.h"
+#include <string.h>
 
 float mat_at(f32_mat *A, unsigned int i, unsigned int j) {
   if (A->transposed == 1) {
@@ -201,4 +202,40 @@ void arr_print(f32_arr *A) {
     printf("%3.1f, ", A->arr[i]);
   }
   printf("]\n");
-}
+};
+
+void mat_fill_zeros(f32_mat *A) {
+  memset(A->matrix, 0, sizeof(float) * A->cols * A->rows);
+};
+
+void arr_fill_zeros(f32_arr *A) {
+  memset(A->arr, 0, sizeof(float) * A->length);
+};
+
+void mat_fill_rand(f32_mat *A, float min, float max) {
+  float range = max - min;
+  for (unsigned int i = 0; i < A->rows * A->cols; i++) {
+    float random_float = ((float)rand() / RAND_MAX) * range + min;
+    A->matrix[i] = random_float;
+  }
+};
+
+void arr_fill_rand(f32_arr *A, float min, float max) {
+  float range = max - min;
+  for (unsigned int i = 0; i < A->length; i++) {
+    float random_float = rand() / (RAND_MAX + 0.0) * range + min;
+    A->arr[i] = random_float;
+  }
+};
+
+void mat_func(f32_mat *A, float (*f)(float)) {
+  for (unsigned int i = 0; i < A->rows * A->cols; i++) {
+    A->matrix[i] = (*f)(A->matrix[i]);
+  }
+};
+
+void arr_func(f32_arr *A, float (*f)(float)) {
+  for (unsigned int i = 0; i < A->length; i++) {
+    A->arr[i] = (*f)(A->arr[i]);
+  }
+};

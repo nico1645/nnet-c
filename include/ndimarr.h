@@ -18,6 +18,16 @@ typedef struct {
   float *matrix;
 } f32_mat;
 
+void mat_func(f32_mat *A, float (*f)(float));
+void arr_func(f32_arr *A, float (*f)(float));
+
+void mat_fill_zeros(f32_mat *A);
+void arr_fill_zeros(f32_arr *A);
+
+// Make sure srand() is already initialized with a seed
+void mat_fill_rand(f32_mat *A, float min, float max);
+void arr_fill_rand(f32_arr *A, float min, float max);
+
 // Operations are inplace and the result is stored in A. The return type can be
 // used to check for errors.
 int transpose(f32_mat *A);

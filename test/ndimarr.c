@@ -2,6 +2,7 @@
 #include "../include/ndimarr.h"
 
 int main(void) {
+  srand(83742);
   float v1[] = {1, 2, 3, 4};
   float v2[] = {-4, 3, -2, 1};
   float m[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
@@ -26,6 +27,12 @@ int main(void) {
   f32_mat *res2 = mat_mul(mat1, mat2);
   transpose(m1);
   printf("4. mat_mul:\n");
+  mat_print(res2);
+  mat_fill_rand(res2, 0, 10);
+  printf("5. mat_fill_rand:\n");
+  mat_print(res2);
+  mat_fill_zeros(res2);
+  printf("6. mat_fill_zeros:\n");
   mat_print(res2);
 
   free(m1);
