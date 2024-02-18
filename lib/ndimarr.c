@@ -40,12 +40,68 @@ f32_arr *create_narr(float *A, int length) {
 int hamard_prod(f32_mat *A, f32_mat *B) {
   if (A->rows != B->rows || A->cols != B->cols)
     return 1;
-  for (unsigned int i = 0; i < A->rows * A->rows; i++) {
-    A->matrix[i] = A->matrix[i] * A->matrix[i];
+  for (unsigned int i = 0; i < A->rows * A->cols; i++) {
+    A->matrix[i] = A->matrix[i] * B->matrix[i];
   }
 
   return 0;
 }
+
+int mat_scalar_mul(f32_mat *A, float a) {
+  for (unsigned int i = 0; i < A->rows * A->cols; i++) {
+    A->matrix[i] *= a;
+  }
+  return 0;
+};
+
+int mat_mul_inplace(f32_mat *A, f32_mat *B, f32_mat *result) {
+  if (result->cols != B->cols || result->rows != A->rows)
+    return 1;
+  float *matrix = result->matrix;
+  if (A->transposed == 1 && B->transposed == 1) {
+    for (unsigned int i = 0; i < A->rows; i++) {
+      for (unsigned int j = 0; j < B->cols; j++) {
+        float dot_prod = 0;
+        for (unsigned int k = 0; k < A->cols; k++) {
+          dot_prod += A->matrix[k * A->cols + i] * B->matrix[j * B->cols + k];
+        }
+        matrix[i * result->cols + j] = dot_prod;
+      }
+    }
+  } else if (A->transposed == 1 && B->transposed == 0) {
+    for (unsigned int i = 0; i < A->rows; i++) {
+      for (unsigned int j = 0; j < B->cols; j++) {
+        float dot_prod = 0;
+        for (unsigned int k = 0; k < A->cols; k++) {
+          dot_prod += A->matrix[k * A->cols + i] * B->matrix[k * B->cols + j];
+        }
+        matrix[i * result->cols + j] = dot_prod;
+      }
+    }
+  } else if (B->transposed == 1 && A->transposed == 0) {
+    for (unsigned int i = 0; i < A->rows; i++) {
+      for (unsigned int j = 0; j < B->cols; j++) {
+        float dot_prod = 0;
+        for (unsigned int k = 0; k < A->cols; k++) {
+          dot_prod += A->matrix[i * A->cols + k] * B->matrix[j * B->cols + k];
+        }
+        matrix[i * result->cols + j] = dot_prod;
+      }
+    }
+  } else {
+    for (unsigned int i = 0; i < A->rows; i++) {
+      for (unsigned int j = 0; j < B->cols; j++) {
+        float dot_prod = 0;
+        for (unsigned int k = 0; k < A->cols; k++) {
+          dot_prod += A->matrix[i * A->cols + k] * B->matrix[k * B->cols + j];
+        }
+        matrix[i * result->cols + j] = dot_prod;
+      }
+    }
+  }
+
+  return 0;
+};
 
 f32_mat *mat_mul(f32_mat *A, f32_mat *B) {
   f32_mat *result = malloc(sizeof(f32_mat));
@@ -135,9 +191,11 @@ int mat_minus(f32_mat *A, f32_mat *B) {
   if (A->cols != B->cols || A->rows != B->rows)
     return 1;
 
-  for (unsigned int i = 0; i < A->rows * A->cols; i++) {
-    // Maybe add bound checks
-    A->matrix[i] = A->matrix[i] - B->matrix[i];
+  for (unsigned int i = 0; i < A->rows; i++) {
+    for (unsigned int j = 0; j < A->cols; j++) {
+      // Maybe add bound checks
+      mat_set(A, mat_at(A, i, j) - mat_at(B, i, j), i, j);
+    }
   }
   return 0;
 };
@@ -157,9 +215,11 @@ int mat_add(f32_mat *A, f32_mat *B) {
   if (A->cols != B->cols || A->rows != B->rows)
     return 1;
 
-  for (unsigned int i = 0; i < A->rows * A->cols; i++) {
-    // Maybe add bound checks
-    A->matrix[i] = A->matrix[i] + B->matrix[i];
+  for (unsigned int i = 0; i < A->rows; i++) {
+    for (unsigned int j = 0; j < A->cols; j++) {
+      // Maybe add bound checks
+      mat_set(A, mat_at(A, i, j) + mat_at(B, i, j), i, j);
+    }
   }
   return 0;
 };
@@ -188,7 +248,7 @@ void mat_print(f32_mat *A) {
   printf("[[");
   for (unsigned int i = 0; i < A->rows; i++) {
     for (unsigned int j = 0; j < A->cols; j++) {
-      printf("%3.1f, ", mat_at(A, i, j));
+      printf("%.6f, ", mat_at(A, i, j));
     }
     if (i != A->rows - 1)
       printf("]\n[");

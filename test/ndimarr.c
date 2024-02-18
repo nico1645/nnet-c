@@ -1,6 +1,7 @@
 
 #include "../include/ndimarr.h"
 #include "../include/nnetfunc.h"
+#include "../include/nnetmodels.h"
 
 int main(void) {
   srand(83742);
@@ -46,6 +47,28 @@ int main(void) {
   free(res2->matrix);
   free(res1);
   free(res2);
+
+  unsigned int hlayers[] = {120, 120, 3};
+  f32_model *model = model_create_ffnn(784, 10, hlayers, 3);
+  if (model == NULL)
+    printf("failed");
+  printf("allocated\n");
+  for (int i = 0; i < 1000; i++) {
+        model_train_epoch(model, 0.01);
+    }
+model->input_layer->matrix[3] = 1;
+  model_forward_propagate(model);
+  printf("forward propagated\n");
+  model_backward_propagate(model);
+  printf("backward propagated\n");
+  mat_print(&model->weights[0]);
+  model_sgd(model, 0.01);
+  printf("gradient descent\n");
+  mat_print(model->output_layer);
+  float b =compute_cross_entropy_loss(model->output_layer, model->label);
+  printf("loss: %f\n", b);
+
+  free_model(model);
 
   return 0;
 }

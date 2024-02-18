@@ -13,6 +13,14 @@ all: build test
 
 build: 
 	mkdir -p $(BIN_DIR)
+	$(CC) $(CFLAGS) -I$(HEADER_DIR)/ndimarr.h -c lib/ndimarr.c -o lib/ndimarr.o
+	ar rcs lib/libndimarr.a lib/ndimarr.o
+	$(CC) $(CFLAGS) -I$(HEADER_DIR)/nnetfunc.h -c lib/nnetfunc.c -o lib/nnetfunc.o
+	ar rcs lib/libnnetfunc.a lib/nnetfunc.o
+	$(CC) $(CFLAGS) -I$(HEADER_DIR)/nnetmodels.h -c lib/nnetmodels.c -o lib/nnetmodels.o
+	ar rcs lib/libnnetmodels.a lib/nnetmodels.o
+	$(CC) $(CFLAGS) -g src/main.c -Llib/ -lndimarr -lnnetfunc -lnnetmodels -o $(BIN_DIR)/main	
+	$(BIN_DIR)/main
 
 test:
 	mkdir -p $(BIN_DIR)
@@ -20,7 +28,9 @@ test:
 	ar rcs lib/libndimarr.a lib/ndimarr.o
 	$(CC) $(CFLAGS) -I$(HEADER_DIR)/nnetfunc.h -c lib/nnetfunc.c -o lib/nnetfunc.o
 	ar rcs lib/libnnetfunc.a lib/nnetfunc.o
-	$(CC) $(CFLAGS) test/ndimarr.c -Llib/ -lndimarr -lnnetfunc -o $(BIN_DIR)/run_tests	
+	$(CC) $(CFLAGS) -I$(HEADER_DIR)/nnetmodels.h -c lib/nnetmodels.c -o lib/nnetmodels.o
+	ar rcs lib/libnnetmodels.a lib/nnetmodels.o
+	$(CC) $(CFLAGS) -g test/ndimarr.c -Llib/ -lndimarr -lnnetfunc -lnnetmodels -o $(BIN_DIR)/run_tests	
 	$(BIN_DIR)/run_tests
 
 clean:

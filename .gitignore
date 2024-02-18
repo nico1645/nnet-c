@@ -3,3 +3,4 @@
 bin/*
 lib/*.o
 lib/*.a
+mnist/
