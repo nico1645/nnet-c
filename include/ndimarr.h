@@ -35,7 +35,7 @@ int minus(f32_arr *A, f32_arr *B);
 int mat_minus(f32_mat *A, f32_mat *B);
 int add(f32_arr *A, f32_arr *B);
 int mat_add(f32_mat *A, f32_mat *B);
-int hamard_prod(f32_mat *A, f32_mat *B);
+int hadamard_prod(f32_mat *A, f32_mat *B);
 int mat_scalar_mul(f32_mat *A, float a);
 int mat_mul_inplace(f32_mat *A, f32_mat *B, f32_mat *result);
 

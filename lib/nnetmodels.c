@@ -193,7 +193,7 @@ void free_model(f32_model *model) {
 void model_forward_propagate(f32_model *model) {
   for (unsigned int i = 0; i < model->size; i++) {
     if (i == 0) {
-      int err = mat_mul_inplace(&model->weights[i], model->input_layer,
+      mat_mul_inplace(&model->weights[i], model->input_layer,
                                 &model->pre_activations[i]);
       mat_add(&model->pre_activations[i], &model->biases[i]);
       for (unsigned int j = 0;
@@ -203,7 +203,7 @@ void model_forward_propagate(f32_model *model) {
       };
       mat_func(&model->activations[i], leaky_relu);
     } else if (i == model->size - 1) {
-      int err = mat_mul_inplace(&model->weights[i], &model->activations[i - 1],
+      mat_mul_inplace(&model->weights[i], &model->activations[i - 1],
                                 &model->pre_activations[i]);
       mat_add(&model->pre_activations[i], &model->biases[i]);
       for (unsigned int j = 0;
@@ -217,7 +217,7 @@ void model_forward_propagate(f32_model *model) {
         model->output_layer->matrix[j] = model->activations[i].matrix[j];
       };
     } else {
-      int err = mat_mul_inplace(&model->weights[i], &model->activations[i - 1],
+      mat_mul_inplace(&model->weights[i], &model->activations[i - 1],
                                 &model->pre_activations[i]);
       mat_add(&model->pre_activations[i], &model->biases[i]);
       for (unsigned int j = 0;
@@ -244,7 +244,7 @@ void model_backward_propagate(f32_model *model) {
                       &model->errors[i]);
       transpose(&model->weights[i + 1]);
       mat_func(&model->pre_activations[i], leaky_relu_derivative);
-      hamard_prod(&model->errors[i], &model->pre_activations[i]);
+      hadamard_prod(&model->errors[i], &model->pre_activations[i]);
     }
   }
 

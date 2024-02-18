@@ -37,7 +37,7 @@ f32_arr *create_narr(float *A, int length) {
   return arr;
 };
 
-int hamard_prod(f32_mat *A, f32_mat *B) {
+int hadamard_prod(f32_mat *A, f32_mat *B) {
   if (A->rows != B->rows || A->cols != B->cols)
     return 1;
   for (unsigned int i = 0; i < A->rows * A->cols; i++) {
