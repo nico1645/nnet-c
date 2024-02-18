@@ -256,10 +256,8 @@ void model_backward_propagate(f32_model *model) {
     } else {
       transpose(&model->activations[i - 1]);
 
-      int err = mat_mul_inplace(&model->errors[i], &model->activations[i - 1],
+      mat_mul_inplace(&model->errors[i], &model->activations[i - 1],
                                 &model->dCdW[i]);
-      if (err == 1)
-        printf("ERR 3");
       transpose(&model->activations[i - 1]);
     }
   }

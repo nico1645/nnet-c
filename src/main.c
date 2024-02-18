@@ -105,14 +105,14 @@ int main(void) {
   load_mnist_labels(filename4, control_labels);
 
   // Example: Print the pixel values of the first image
-    for (int i = 0; i < IMAGE_SIZE; ++i) {
+ /*   for (int i = 0; i < IMAGE_SIZE; ++i) {
       printf("%3u ", images[2][i]);
       if ((i + 1) % 28 == 0) {
         printf("\n");
       }
     }
     printf("!!!!!!!!!!!!!!!!!%3u\n", labels[2]);
-      
+  */    
 
   unsigned int hlayers[] = {10};
   f32_model *model; //= model_create_ffnn(784, 10, hlayers, 2);
