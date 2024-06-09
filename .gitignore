@@ -4,3 +4,4 @@ bin/*
 lib/*.o
 lib/*.a
 mnist/
+.DS_Store
