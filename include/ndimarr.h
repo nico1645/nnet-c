@@ -3,7 +3,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 typedef struct {
   unsigned int length;
@@ -36,12 +35,20 @@ int mat_minus(f32_mat *A, f32_mat *B);
 int add(f32_arr *A, f32_arr *B);
 int mat_add(f32_mat *A, f32_mat *B);
 int hadamard_prod(f32_mat *A, f32_mat *B);
+int hadamard_div(f32_mat *A, f32_mat *B);
+int mat_scalar_add(f32_mat *A, float a);
 int mat_scalar_mul(f32_mat *A, float a);
+int mat_scalar_div(f32_mat *A, float a);
+int mat_scalar_pow(f32_mat *A, float a);
+int mat_sqrt(f32_mat *A);
 int mat_mul_inplace(f32_mat *A, f32_mat *B, f32_mat *result);
 
 // Careful no bounds are being checked
 float mat_at(f32_mat *A, unsigned int i, unsigned int j);
 void mat_set(f32_mat *A, float value, unsigned int i, unsigned int j);
+
+int mat_clip_low(f32_mat *A, float a);
+int mat_clip_high(f32_mat *A, float a);
 
 // The dot product is stored in prod. The return type can be used to check for
 // errors.
@@ -61,5 +68,9 @@ f32_arr *mat_to_arr(f32_mat *A);
 
 void mat_print(f32_mat *A);
 void arr_print(f32_arr *A);
+
+void mat_free(f32_mat *A);
+
+f32_mat *mat_deep_copy(f32_mat *A);
 
 #endif

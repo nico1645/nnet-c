@@ -85,6 +85,15 @@ void load_mnist_labels(const char *filename,
   fclose(file);
 }
 
+void img_print(unsigned char image[], unsigned int width, unsigned int height) {
+    for (unsigned int i = 0; i < width*height; ++i) {
+      printf("%3u ", image[i]);
+      if ((i + 1) % width == 0) {
+        printf("\n");
+      }
+    }
+};
+
 int main(void) {
   srand(time(NULL));
   unsigned char images[TRAINING_DATA][IMAGE_SIZE];
@@ -104,17 +113,7 @@ int main(void) {
   load_mnist_control_images(filename3, control_images);
   load_mnist_labels(filename4, control_labels);
 
-  // Example: Print the pixel values of the first image
- /*   for (int i = 0; i < IMAGE_SIZE; ++i) {
-      printf("%3u ", images[2][i]);
-      if ((i + 1) % 28 == 0) {
-        printf("\n");
-      }
-    }
-    printf("!!!!!!!!!!!!!!!!!%3u\n", labels[2]);
-  */    
-
-  unsigned int hlayers[] = {10};
+  unsigned int hlayers[] = {20};
   f32_model *model; //= model_create_ffnn(784, 10, hlayers, 2);
   // loading the training data one example after the other
 
@@ -126,6 +125,9 @@ int main(void) {
   // Process the chunk of data here
   float *input = model->input_layer->matrix;
   float *output = model->label->matrix;
+  float learning_rate = 0.001;
+
+    for (int z = 0; z < 8; z++) {
 
   for (int i = 0; i < TRAINING_DATA; i++) {
     for (unsigned int j = 0; j < 10; j++) {
@@ -139,7 +141,7 @@ int main(void) {
     for (unsigned int j = 0; j < IMAGE_SIZE; j++) {
       input[j] = images[i][j];
     }
-    model_train_epoch(model, 0.001);
+    model_train_item(model, learning_rate, OPTIMIZER.ADAM);
 
     if (i % 5000 == 0) {
       printf("%d\n", i);
@@ -169,9 +171,14 @@ int main(void) {
     }
     if ((unsigned int)(control_labels[i]) == index)
       correct++;
+    if (i == 0) {
+      img_print(control_images[i], 28, 28);
+      printf("Predicted: %d\n", index);
+    }
   }
   printf("CORRECT: %d out of 10'000\n", correct);
   printf("Precentage: %f\n", correct * 100.0 / (float)CONTROL_DATA);
+  }
 
   free_model(model);
 
