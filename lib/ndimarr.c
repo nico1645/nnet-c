@@ -1,5 +1,9 @@
 #include "../include/ndimarr.h"
+#include <assert.h>
+#include <math.h>
+#include <stdlib.h>
 #include <string.h>
+#include <Accelerate/Accelerate.h>
 
 float mat_at(f32_mat *A, unsigned int i, unsigned int j) {
   if (A->transposed == 1) {
@@ -47,6 +51,16 @@ int hadamard_prod(f32_mat *A, f32_mat *B) {
   return 0;
 }
 
+int hadamard_div(f32_mat *A, f32_mat *B) {
+  if (A->rows != B->rows || A->cols != B->cols)
+    return 1;
+  for (unsigned int i = 0; i < A->rows * A->cols; i++) {
+    A->matrix[i] = A->matrix[i] / B->matrix[i];
+  }
+
+  return 0;
+}
+
 int mat_scalar_mul(f32_mat *A, float a) {
   for (unsigned int i = 0; i < A->rows * A->cols; i++) {
     A->matrix[i] *= a;
@@ -54,50 +68,61 @@ int mat_scalar_mul(f32_mat *A, float a) {
   return 0;
 };
 
+int mat_scalar_add(f32_mat *A, float a) {
+  for (unsigned int i = 0; i < A->rows * A->cols; i++) {
+    A->matrix[i] += a;
+  }
+  return 0;
+};
+
+int mat_clip_low(f32_mat *A, float a) {
+  for (unsigned int i = 0; i < A->rows * A->cols; i++) {
+    A->matrix[i] = fmaxf(A->matrix[i], a);
+  }
+  return 0;
+}
+
+int mat_clip_high(f32_mat *A, float a) {
+  for (unsigned int i = 0; i < A->rows * A->cols; i++) {
+    A->matrix[i] = fminf(A->matrix[i], a);
+  }
+  return 0;
+}
+
+int mat_scalar_div(f32_mat *A, float a) {
+  assert(a != 0);
+  for (unsigned int i = 0; i < A->rows * A->cols; i++) {
+    A->matrix[i] /= a;
+  }
+  return 0;
+};
+
+int mat_scalar_pow(f32_mat *A, float a) {
+  for (unsigned int i = 0; i < A->rows * A->cols; i++) {
+    A->matrix[i] = powf(A->matrix[i], a);
+  }
+  return 0;
+};
+
+int mat_sqrt(f32_mat *A) {
+  for (unsigned int i = 0; i < A->rows * A->cols; i++) {
+    assert(A->matrix[i] >= 0);
+    A->matrix[i] = sqrtf(A->matrix[i]);
+  }
+  return 0;
+};
+
 int mat_mul_inplace(f32_mat *A, f32_mat *B, f32_mat *result) {
   if (result->cols != B->cols || result->rows != A->rows)
     return 1;
-  float *matrix = result->matrix;
   if (A->transposed == 1 && B->transposed == 1) {
-    for (unsigned int i = 0; i < A->rows; i++) {
-      for (unsigned int j = 0; j < B->cols; j++) {
-        float dot_prod = 0;
-        for (unsigned int k = 0; k < A->cols; k++) {
-          dot_prod += A->matrix[k * A->cols + i] * B->matrix[j * B->cols + k];
-        }
-        matrix[i * result->cols + j] = dot_prod;
-      }
-    }
+    cblas_sgemm(CblasRowMajor, CblasTrans, CblasTrans, result->rows, result->cols, A->cols, 1.0f, A->matrix, A->rows, B->matrix, B->rows, 0.0f, result->matrix, result->cols);
   } else if (A->transposed == 1 && B->transposed == 0) {
-    for (unsigned int i = 0; i < A->rows; i++) {
-      for (unsigned int j = 0; j < B->cols; j++) {
-        float dot_prod = 0;
-        for (unsigned int k = 0; k < A->cols; k++) {
-          dot_prod += A->matrix[k * A->cols + i] * B->matrix[k * B->cols + j];
-        }
-        matrix[i * result->cols + j] = dot_prod;
-      }
-    }
+    cblas_sgemm(CblasRowMajor, CblasTrans, CblasNoTrans, result->rows, result->cols, A->cols, 1.0f, A->matrix, A->rows, B->matrix, B->cols, 0.0f, result->matrix, result->cols);
   } else if (B->transposed == 1 && A->transposed == 0) {
-    for (unsigned int i = 0; i < A->rows; i++) {
-      for (unsigned int j = 0; j < B->cols; j++) {
-        float dot_prod = 0;
-        for (unsigned int k = 0; k < A->cols; k++) {
-          dot_prod += A->matrix[i * A->cols + k] * B->matrix[j * B->cols + k];
-        }
-        matrix[i * result->cols + j] = dot_prod;
-      }
-    }
+    cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasTrans, result->rows, result->cols, A->cols, 1.0f, A->matrix, A->cols, B->matrix, B->rows, 0.0f, result->matrix, result->cols);
   } else {
-    for (unsigned int i = 0; i < A->rows; i++) {
-      for (unsigned int j = 0; j < B->cols; j++) {
-        float dot_prod = 0;
-        for (unsigned int k = 0; k < A->cols; k++) {
-          dot_prod += A->matrix[i * A->cols + k] * B->matrix[k * B->cols + j];
-        }
-        matrix[i * result->cols + j] = dot_prod;
-      }
-    }
+    cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, result->rows, result->cols, A->cols, 1.0f, A->matrix, A->cols, B->matrix, B->cols, 0.0f, result->matrix, result->cols);
   }
 
   return 0;
@@ -298,4 +323,18 @@ void arr_func(f32_arr *A, float (*f)(float)) {
   for (unsigned int i = 0; i < A->length; i++) {
     A->arr[i] = (*f)(A->arr[i]);
   }
+};
+
+f32_mat *mat_deep_copy(f32_mat *A) {
+    float *tmp = malloc(A->cols*A->rows*sizeof(float));
+    memcpy(tmp, A->matrix, A->cols*A->rows*sizeof(float));
+    f32_mat *B = create_mnmat(tmp, A->rows, A->cols);
+    B->transposed = A->transposed;
+    B->matrix = tmp;
+    return B;
+}
+
+void mat_free(f32_mat *A) {
+  free(A->matrix);
+  free(A);
 };

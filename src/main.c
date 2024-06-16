@@ -114,7 +114,7 @@ int main(void) {
     printf("!!!!!!!!!!!!!!!!!%3u\n", labels[2]);
   */    
 
-  unsigned int hlayers[] = {10};
+  unsigned int hlayers[] = {300};
   f32_model *model; //= model_create_ffnn(784, 10, hlayers, 2);
   // loading the training data one example after the other
 
@@ -126,6 +126,9 @@ int main(void) {
   // Process the chunk of data here
   float *input = model->input_layer->matrix;
   float *output = model->label->matrix;
+  float learning_rate = 0.0001;
+
+    for (int z = 0; z < 8; z++) {
 
   for (int i = 0; i < TRAINING_DATA; i++) {
     for (unsigned int j = 0; j < 10; j++) {
@@ -139,7 +142,7 @@ int main(void) {
     for (unsigned int j = 0; j < IMAGE_SIZE; j++) {
       input[j] = images[i][j];
     }
-    model_train_epoch(model, 0.001);
+    model_train_item(model, learning_rate, OPTIMIZER.SGD_MOMENTUM);
 
     if (i % 5000 == 0) {
       printf("%d\n", i);
@@ -172,6 +175,7 @@ int main(void) {
   }
   printf("CORRECT: %d out of 10'000\n", correct);
   printf("Precentage: %f\n", correct * 100.0 / (float)CONTROL_DATA);
+  }
 
   free_model(model);
 
